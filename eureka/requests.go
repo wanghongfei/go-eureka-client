@@ -9,9 +9,11 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strconv"
 	"sync"
 	"time"
-	"strconv"
+
+	"code.google.com/p/log4go"
 )
 
 // Errors introduced by handling requests
@@ -122,11 +124,11 @@ func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *
 		Metadata:       nil,
 	}
 	stringPort := ""
-	if (port != 80 && port != 443) {
+	if port != 80 && port != 443 {
 		stringPort = ":" + strconv.Itoa(port)
 	}
-	var protocol string = "http"
-	if (isSsl) {
+	var protocol = "http"
+	if isSsl {
 		protocol = "https"
 		instanceInfo.secureVipAddress = protocol + "://" + hostName + stringPort
 		instanceInfo.SecurePort = &Port{
@@ -147,7 +149,7 @@ func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *
 // getCancelable issues a cancelable GET request
 func (c *Client) getCancelable(endpoint string,
 cancel <-chan bool) (*RawResponse, error) {
-	logger.Debug("get %s [%s]", endpoint, c.Cluster.Leader)
+	log4go.Debug("get %s [%s]", endpoint, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("GET", p, nil, cancel)
@@ -168,7 +170,7 @@ func (c *Client) Get(endpoint string) (*RawResponse, error) {
 // put issues a PUT request
 func (c *Client) Put(endpoint string, body []byte) (*RawResponse, error) {
 
-	logger.Debug("put %s, %s, [%s]", endpoint, body, c.Cluster.Leader)
+	log4go.Debug("put %s, %s, [%s]", endpoint, body, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("PUT", p, body, nil)
@@ -183,7 +185,7 @@ func (c *Client) Put(endpoint string, body []byte) (*RawResponse, error) {
 
 // post issues a POST request
 func (c *Client) Post(endpoint string, body []byte) (*RawResponse, error) {
-	logger.Debug("post %s, %s, [%s]", endpoint, body, c.Cluster.Leader)
+	log4go.Debug("post %s, %s, [%s]", endpoint, body, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("POST", p, body, nil)
@@ -198,7 +200,7 @@ func (c *Client) Post(endpoint string, body []byte) (*RawResponse, error) {
 
 // delete issues a DELETE request
 func (c *Client) Delete(endpoint string) (*RawResponse, error) {
-	logger.Debug("delete %s [%s]", endpoint, c.Cluster.Leader)
+	log4go.Debug("delete %s [%s]", endpoint, c.Cluster.Leader)
 	p := endpoint
 
 	req := NewRawRequest("DELETE", p, nil, nil)
@@ -237,7 +239,7 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			select {
 			case <-rr.cancel:
 				cancelled <- true
-				logger.Debug("send.request is cancelled")
+				log4go.Debug("send.request is cancelled")
 			case <-cancelRoutine:
 				return
 			}
@@ -276,11 +278,11 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			}
 		}
 
-		logger.Debug("Connecting to eureka: attempt %d for %s", attempt + 1, rr.relativePath)
+		log4go.Debug("Connecting to eureka: attempt %d for %s", attempt + 1, rr.relativePath)
 
 		httpPath = c.getHttpPath(false, rr.relativePath)
 
-		logger.Debug("send.request.to %s | method %s", httpPath, rr.method)
+		log4go.Debug("send.request.to %s | method %s", httpPath, rr.method)
 
 		req, err := func() (*http.Request, error) {
 			reqLock.Lock()
@@ -317,7 +319,7 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 
 		// network error, change a machine!
 		if err != nil {
-			logger.Error("network error: %v", err.Error())
+			log4go.Error(err)
 			lastResp := http.Response{}
 			if checkErr := checkRetry(c.Cluster, numReqs, lastResp, err); checkErr != nil {
 				return nil, checkErr
@@ -328,13 +330,13 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 		}
 
 		// if there is no error, it should receive response
-		logger.Debug("recv.response.from "+httpPath)
+		log4go.Debug("recv.response.from "+httpPath)
 
 		if validHttpStatusCode[resp.StatusCode] {
 			// try to read byte code and break the loop
 			respBody, err = ioutil.ReadAll(resp.Body)
 			if err == nil {
-				logger.Debug("recv.success "+ httpPath)
+				log4go.Debug("recv.success "+ httpPath)
 				break
 			}
 			// ReadAll error may be caused due to cancel request
@@ -359,12 +361,12 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 			u, err := resp.Location()
 
 			if err != nil {
-				logger.Warning("%v", err)
+				log4go.Warn("%v", err)
 			} else {
 				// Update cluster leader based on redirect location
 				// because it should point to the leader address
 				c.Cluster.updateLeaderFromURL(u)
-				logger.Debug("recv.response.relocate "+ u.String())
+				log4go.Debug("recv.response.relocate "+ u.String())
 			}
 			resp.Body.Close()
 			continue
@@ -403,7 +405,7 @@ err error) error {
 
 	}
 
-	logger.Warning("bad response status code %d", code)
+	log4go.Warn("bad response status code %d", code)
 	return nil
 }
 

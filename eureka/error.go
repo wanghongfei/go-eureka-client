@@ -3,6 +3,8 @@ package eureka
 import (
 	"encoding/json"
 	"fmt"
+
+	"code.google.com/p/log4go"
 )
 
 const (
@@ -40,7 +42,7 @@ func handleError(b []byte) error {
 
 	err := json.Unmarshal(b, eurekaErr)
 	if err != nil {
-		logger.Warning("cannot unmarshal eureka error: %v", err)
+		log4go.Warn("cannot unmarshal eureka error: %v", err)
 		return err
 	}
 
