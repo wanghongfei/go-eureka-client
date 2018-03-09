@@ -1,8 +1,8 @@
 package eureka
 
 import (
-	"encoding/xml"
 	"encoding/json"
+	"encoding/xml"
 	"regexp"
 )
 

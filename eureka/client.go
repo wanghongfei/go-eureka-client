@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"code.google.com/p/log4go"
+	"github.com/alecthomas/log4go"
 )
 
 const (

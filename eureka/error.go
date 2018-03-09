@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"code.google.com/p/log4go"
+	"github.com/alecthomas/log4go"
 )
 
 const (

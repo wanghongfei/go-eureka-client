@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"code.google.com/p/log4go"
+	"github.com/alecthomas/log4go"
 )
 
 type Cluster struct {
