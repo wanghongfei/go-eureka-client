@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/alecthomas/log4go"
 )
 
 type Cluster struct {
@@ -27,8 +26,7 @@ func NewCluster(machines []string) *Cluster {
 
 // switchLeader switch the current leader to machines[num]
 func (cl *Cluster) switchLeader(num int) {
-	log4go.Debug("switch.leader[from %v to %v]",
-		cl.Leader, cl.Machines[num])
+	// log4go.Debug("switch.leader[from %v to %v]", cl.Leader, cl.Machines[num])
 
 	cl.Leader = cl.Machines[num]
 }
@@ -38,7 +36,7 @@ func (cl *Cluster) updateFromStr(machines string) {
 }
 
 func (cl *Cluster) updateLeader(leader string) {
-	log4go.Debug("update.leader[%s,%s]", cl.Leader, leader)
+	// log4go.Debug("update.leader[%s,%s]", cl.Leader, leader)
 	cl.Leader = leader
 }
 

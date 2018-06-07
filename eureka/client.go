@@ -12,10 +12,8 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"strings"
 	"time"
 
-	"github.com/alecthomas/log4go"
 )
 
 const (
@@ -275,7 +273,7 @@ func (c *Client) internalSyncCluster(machines []string) bool {
 			// the first one in the machine list is the leader
 			c.Cluster.switchLeader(0)
 
-			log4go.Debug("sync.machines " + strings.Join(c.Cluster.Machines, ", "))
+			// log4go.Debug("sync.machines " + strings.Join(c.Cluster.Machines, ", "))
 			return true
 		}
 	}
