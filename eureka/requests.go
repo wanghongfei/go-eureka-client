@@ -103,7 +103,7 @@ func NewRawRequest(method, relativePath string, body []byte, cancel <-chan bool)
 	}
 }
 
-func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *InstanceInfo {
+func NewInstanceInfo(instanceId, app, ip string, port int, ttl uint, isSsl bool) *InstanceInfo {
 	dataCenterInfo := &DataCenterInfo{
 		Name: "MyOwn",
 		Class:    "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
@@ -113,7 +113,7 @@ func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *
 		EvictionDurationInSecs: ttl,
 	}
 	instanceInfo := &InstanceInfo{
-		HostName:       hostName,
+		HostName:       instanceId,
 		App:            app,
 		IpAddr:         ip,
 		Status:         UP,
@@ -128,19 +128,19 @@ func NewInstanceInfo(hostName, app, ip string, port int, ttl uint, isSsl bool) *
 	var protocol = "http"
 	if isSsl {
 		protocol = "https"
-		instanceInfo.secureVipAddress = protocol + "://" + hostName + stringPort
+		instanceInfo.secureVipAddress = protocol + "://" + ip + stringPort
 		instanceInfo.SecurePort = &Port{
 			Port: port,
 			Enabled: true,
 		}
 	}else {
-		instanceInfo.VipAddress = protocol + "://" + hostName + stringPort
+		instanceInfo.VipAddress = protocol + "://" + ip + stringPort
 		instanceInfo.Port = &Port{
 			Port: port,
 			Enabled: true,
 		}
 	}
-	instanceInfo.StatusPageUrl = protocol + "://" + hostName + stringPort + "/info"
+	instanceInfo.StatusPageUrl = protocol + "://" + ip + stringPort + "/info"
 	return instanceInfo
 }
 
